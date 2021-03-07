@@ -13,8 +13,11 @@ AS
         AND C.CountryID = CO.CountryID
     GROUP BY G.GenreID, GG.Genre
 GO
+SELECT * 
+FROM (
 SELECT GenreID, Genre, RANK() OVER(PARTITION BY CountryName ORDER BY SUM(Quantity * Price)) AS RANK
-FROM Popular_Genres
+FROM Popular_Genres)
+WHERE RANK > 5
 
 
 
