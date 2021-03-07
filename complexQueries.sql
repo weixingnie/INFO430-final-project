@@ -11,7 +11,7 @@ AS
         AND OG.OrderID = O.OrderID
         AND C.CustomerID = O.CustomerID
         AND C.CountryID = CO.CountryID
-    GROUP BY G.GenreID, GG.GenreID
+    GROUP BY G.GenreID, GG.Genre
 GO
 SELECT GenreID, Genre, RANK() OVER(PARTITION BY CountryName ORDER BY SUM(Quantity * Price)) AS RANK
 FROM Popular_Genres
