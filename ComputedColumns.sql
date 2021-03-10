@@ -16,7 +16,7 @@ END
 GO
 
 ALTER TABLE tblGame
-ADD TotalQuantitySold AS (GameQuanitySold(GameID))
+ADD TotalQuantitySold AS dbo.fn_GameQuanitySold(GameID)
 GO
 
 -- Computed Columun #2 for shourya
@@ -38,4 +38,4 @@ END
 GO
 
 ALTER TABLE Publisher
-ADD TotalRevenueGenerated AS RevenueForPublisher(Publish_ID)
+ADD TotalRevenueGenerated AS dbo.fn_RevenueForPublisher(Publish_ID)
