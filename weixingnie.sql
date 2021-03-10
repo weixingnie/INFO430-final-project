@@ -148,6 +148,7 @@ Previous part are all create table
 Previous part are all create table
 Previous part are all create table
 */
+GO
 ---GET CustomerID
 CREATE PROCEDURE usp_GETCUSTID
     @CustomerFname VARCHAR(50),
@@ -164,13 +165,45 @@ CREATE PROCEDURE usp_GETCUSTID
 
 GO
 
+CREATE PROCEDURE usp_GetTypeofReviewID
+@TypeName VARCHAR(50),
+@TypeofReviewID INT OUTPUT 
+AS 
+SET @TypeofReviewID = (SELECT TypeOfReviewID FROM TypeOfReview WHERE TypeOfReviewName = @TypeName)
+GO
 
+CREATE PROCEDURE usp_GetRatingID
+@RatingName VARCHAR(50),
+@RatingNum INT,
+@RatingID INT OUTPUT 
+AS 
+SET @RatingID = (SELECT RatingID FROM tblRATING WHERE RatingName = @RatingName AND RatingNum = @RatingNum)
+GO
+
+CREATE PROCEDURE uspGetGameID
+@GameName VARCHAR(50),
+@GameID INT OUTPUT 
+AS 
+SET @GameID = (SELECT gameID FROM tblGAME WHERE gameName = @GameName)
+GO 
+
+CREATE PROCEDURE uspGetGenreID
+@GerneName VARCHAR(50),
+@GerneID INT OUTPUT 
+AS 
+SET @GerneID = (SELECT GenreID FROM Genre G WHERE G.GenreName = @GerneName)
+GO 
+
+CREATE PROCEDURE uspLanguageID
+@LanguageName VARCHAR(50),
+@LanguageID INT OUTPUT 
+AS 
+SET @LanguageID = (SELECT languageID FROM Language_Type L WHERE L.languageName = @LanguageName)
+GO 
 
 
 
 --- new review
-CREATE PROCEDURE newReview
-GO
 
 
 
@@ -418,6 +451,8 @@ WITH CTE_popular_console (ConsoleID, ConsoleName, numbers) AS
         JOIN tblPublisher P ON P.PublisherID = G.PublisherID
         JOIN tblCountry CT ON CT.CountryID = P.CountryID
 GO
+
+
 
 
 SELECT * FROM Most_popular_Console
