@@ -203,12 +203,7 @@ GO
 
 
 
---- new review
-
-
-
-
-
+---Create procedure for insertion
 
 
 
