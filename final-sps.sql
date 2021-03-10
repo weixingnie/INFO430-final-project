@@ -1,5 +1,8 @@
+USE rdjiVGmock
+
 -- GETid FOR cOUNTRY
-CREATE PROCEDURE getCountryID_Shourya
+go
+ALTER PROCEDURE getCountryID_Shourya
     @Country_Name VARCHAR(50),
     @Country_Abbv VARCHAR(50),
     @C_ID INT OUTPUT
@@ -8,38 +11,36 @@ BEGIN
     SET @C_ID = (select CountryID
     from tblCOUNTRY
     WHERE CountryName = @Country_Name
-        AND CountryAbberviation = @Country_Abbv)
+        AND CountryAbbreviation = @Country_Abbv)
 END
 GO
 
 -- getID for publisher
 CREATE PROCEDURE getPublisherID_Shourya
-    @Publisher_name VARHCAR(50),
+    @Publisher_name VARCHAR(50),
     @C_Name VARCHAR(50),
     @C_Abbv VARCHAR(50),
     @P_ID INT OUTPUT
 AS
 DECLARE @cty_id INT
 
+
 EXECUTE getCountryID_Shourya
     @Country_Name = @C_Name,
     @Country_Abbv = @C_Abbv,
     @C_ID = @cty_id OUTPUT
-GO
 
 IF @cty_id IS NULL
         BEGIN
     PRINT "@cty_id is NULL, please go check";
     THROW 54667, '@cty_id is NULL, please go check', 1;
 END
-GO
 
-BEGIN
-    SET @P_ID = (SELECT PublisherID
-    FROM tblPublisher
-    WHERE PublisherName = @Publisher_name
-        AND CountryID = @cty_id)
-END
+SET @P_ID = (SELECT PublisherID
+FROM tblPublisher
+WHERE PublisherName = @Publisher_name
+    AND CountryID = @cty_id)
+
 GO
 
 -- getID for Collection
@@ -50,7 +51,7 @@ AS
 BEGIN
     SET @Collection_ID = (select CollectionID
     from tblCollection
-    WHERE CollectionName = @CCollection_Name)
+    WHERE CollectionName = @Collection_Name)
 END
 GO
 
@@ -64,8 +65,8 @@ AS
 BEGIN
     SET @MaturityRating_ID = (select MaturityRatingID
     from Maturity_Rating
-    WHERE CountryName = @MaturityRating_Name
-        AND CountryAbberviation = @MaturityRating_Abbv)
+    WHERE RatingName = @MaturityRating_Name
+        AND RatingAbbreviation = @MaturityRating_Abbv)
 END
 GO
 
@@ -85,21 +86,21 @@ EXECUTE getCountryID_Shourya
     @Country_Name = @C_Name,
     @Country_Abbv = @C_Abbv,
     @C_ID = @cty_id OUTPUT
-GO
+
 
 IF @cty_id IS NULL
     BEGIN
-    PRINT "@cty_id is NULL, please go check";
+    PRINT '@cty_id is NULL, please go check';
     THROW 54667, '@cty_id is NULL, please go check', 1;
 END
-GO
+
 
 BEGIN
-    SET @D_ID = (SELECT DevloperID
+    SET @D_ID = (SELECT DeveloperID
     FROM tblDeveloper
     WHERE Fname = @D_Fname
         AND Lname = @D_Lname
-        AND DateofBirth = @D_DOB
+        AND DOB = @D_DOB
         AND CountryID = @cty_id)
 END
 GO
@@ -112,7 +113,7 @@ AS
 BEGIN
     SET @Role_ID = (select RoleID
     from tblRole
-    WHERE RoleName = @MRole_Name)
+    WHERE RoleName = @Role_Name)
 END
 GO
 
@@ -123,7 +124,7 @@ CREATE PROCEDURE getGameID_Shourya
     @MR_Name VARCHAR(50),
     @MR_Abbv VARCHAR(50),
     @Price_val NUMERIC,
-    @Publish_name VARHCAR(50),
+    @Publish_name VARCHAR(50),
     @Coun_Name VARCHAR(50),
     @Coun_Abbv VARCHAR(50),
     @G_ID INT OUTPUT
@@ -141,20 +142,18 @@ EXECUTE getPublisherID_Shourya
 
 IF @Pubhlish_ID IS NULL
         BEGIN
-    PRINT "@Pubhlish_ID is NULL, please go check";
+    PRINT '@Pubhlish_ID is NULL, please go check';
     THROW 54667, '@Pubhlish_ID is NULL, please go check', 1;
 END
-GO
 
 EXECUTE getCollectionID_Shourya
     @Collection_Name = @Coll_Name,
     @Collection_ID = @Coll_ID OUTPUT
 IF @Coll_ID IS NULL
         BEGIN
-    PRINT "@Coll_ID is NULL, please go check";
+    PRINT '@Coll_ID is NULL, please go check';
     THROW 54667, '@Coll_ID is NULL, please go check', 1;
 END
-GO
 
 EXECUTE getMaturityRatingID_Shourya
     @MaturityRating_Name = @MR_Name,
@@ -163,7 +162,7 @@ EXECUTE getMaturityRatingID_Shourya
 
 IF @MR_ID IS NULL
 BEGIN
-    PRINT "@MR_ID is NULL, please go check";
+    PRINT '@MR_ID is NULL, please go check';
     THROW 54667, '@MR_ID is NULL, please go check', 1;
 END
 BEGIN
@@ -173,7 +172,7 @@ BEGIN
         AND collectionID = @Coll_ID
         AND Price = @Price_val
         AND PublisherID = @Pubhlish_ID
-        AND MaturityRatingID = MR_ID)
+        AND MaturityRatingID = @MR_ID)
 END 
 GO
 
@@ -185,7 +184,7 @@ CREATE PROCEDURE popGameDeveloperRole_Shourya
     @MRA_Name VARCHAR(50),
     @MRA_Abbv VARCHAR(50),
     @Price_value NUMERIC,
-    @Pub_name VARHCAR(50),
+    @Pub_name VARCHAR(50),
     @Con_Name VARCHAR(50),
     @Con_Abbv VARCHAR(50),
     @R_Name VARCHAR(50),
@@ -202,10 +201,9 @@ EXECUTE getRoleID_Shourya
     @Role_ID = @RO_ID OUTPUT
 IF @RO_ID IS NULL
         BEGIN
-    PRINT "@RO_ID is NULL, please go check";
+    PRINT '@RO_ID is NULL, please go check';
     THROW 54667, '@RO_ID is NULL, please go check', 1;
 END
-GO
 
 EXECUTE getDeveloperID_Shourya
     @D_Fname = @Dev_Fname,
@@ -217,10 +215,10 @@ EXECUTE getDeveloperID_Shourya
 
 IF @Dev_ID IS NULL
         BEGIN
-    PRINT "@D_ID is NULL, please go check";
+    PRINT '@D_ID is NULL, please go check';
     THROW 54667, '@D_ID is NULL, please go check', 1;
 END
-GO
+
 
 EXECUTE getGameID_Shourya
     @game_Name = @g_Name,
@@ -234,16 +232,16 @@ EXECUTE getGameID_Shourya
     @G_ID = @Game_ID OUTPUT
 IF @Game_ID IS NULL
         BEGIN
-    PRINT "@Game_ID is NULL, please go check";
+    PRINT '@Game_ID is NULL, please go check';
     THROW 54667, '@Game_ID is NULL, please go check', 1;
 END
-GO
+
 
 BEGIN TRAN T1
-INSERT INTO gameDeveloperRole
+INSERT INTO tblgameDeveloperRole
     (
     gameID,
-    developerID,
+    DevloperID,
     RoleID
     )
 VALUES
@@ -270,7 +268,7 @@ CREATE PROCEDURE popGame_Shourya
     @MR_Name VARCHAR(50),
     @MR_Abbv VARCHAR(50),
     @Price_val NUMERIC,
-    @Publish_name VARHCAR(50),
+    @Publish_name VARCHAR(50),
     @Coun_Name VARCHAR(50),
     @Coun_Abbv VARCHAR(50)
 AS
@@ -287,20 +285,20 @@ EXECUTE getPublisherID_Shourya
 
 IF @Pubhlish_ID IS NULL
         BEGIN
-    PRINT "@Pubhlish_ID is NULL, please go check";
+    PRINT '@Pubhlish_ID is NULL, please go check';
     THROW 54667, '@Pubhlish_ID is NULL, please go check', 1;
 END
-GO
+
 
 EXECUTE getCollectionID_Shourya
     @Collection_Name = @Coll_Name,
     @Collection_ID = @Coll_ID OUTPUT
 IF @Coll_ID IS NULL
         BEGIN
-    PRINT "@Coll_ID is NULL, please go check";
+    PRINT '@Coll_ID is NULL, please go check';
     THROW 54667, '@Coll_ID is NULL, please go check', 1;
 END
-GO
+
 
 EXECUTE getMaturityRatingID_Shourya
     @MaturityRating_Name = @MR_Name,
@@ -309,10 +307,10 @@ EXECUTE getMaturityRatingID_Shourya
 
 IF @MR_ID IS NULL
 BEGIN
-    PRINT "@MR_ID is NULL, please go check";
+    PRINT '@MR_ID is NULL, please go check';
     THROW 54667, '@MR_ID is NULL, please go check', 1;
 END
-GO
+
 
 BEGIN TRAN T1
 INSERT INTO tblGame
@@ -329,7 +327,6 @@ VALUES
         @Coll_ID,
         @Price_val,
         @Pubhlish_ID,
-        @Quarter_ID,
         @MR_ID
 )
 IF @@ERROR <> 0
@@ -363,7 +360,7 @@ DECLARE @CollectionCount INT = (SELECT COUNT(*)
 FROM tblCollection)
 
 DECLARE @PublisherCount INT = (SELECT COUNT(*)
-FROM tblPublishers)
+FROM tblPublisher)
 
 DECLARE @MRCount INT = (SELECT COUNT(*)
 FROM Maturity_Rating)
@@ -373,7 +370,7 @@ DECLARE  @g_Namez VARCHAR(50),
     @MRA_Namez VARCHAR(50),
     @MRA_Abbvz VARCHAR(50),
     @Price_valuez NUMERIC,
-    @Pub_namez VARHCAR(50),
+    @Pub_namez VARCHAR(50),
     @Con_Namez VARCHAR(50),
     @Con_Abbvz VARCHAR(50),
     @R_Namez VARCHAR(50),
@@ -394,7 +391,7 @@ BEGIN
     SET @Dev_Lnamez = (SELECT Lname
     FROM tblDeveloper
     WHERE developerID = @PK)
-    SET @Dev_DOBz = (SELECT DateofBirth
+    SET @Dev_DOBz = (SELECT DOB
     FROM tblDeveloper
     WHERE developerID = @PK)
 
@@ -407,7 +404,7 @@ BEGIN
     SET @Con_Namez = (SELECT CountryName
     FROM tblCOUNTRY
     WHERE CountryID = @PK)
-    SET @Con_Abbvz = (SELECT CountryAbberviation
+    SET @Con_Abbvz = (SELECT CountryAbbreviation
     FROM tblCOUNTRY
     WHERE CountryID = @PK)
 
@@ -419,7 +416,7 @@ BEGIN
     SET @PK = (SELECT RAND() * @CollectionCount + 1)
     SET @Collec_namez = (SELECT CollectionName
     FROM tblCollection
-    WHERE CollectiomID = @PK)
+    WHERE CollectionID = @PK)
 
     SET @PK = (SELECT RAND() * @GameCount + 1)
     SET @g_Namez = (SELECT gameName
@@ -430,12 +427,12 @@ BEGIN
     WHERE gameID = @PK)
 
     SET @PK = (SELECT RAND() * @MRCount + 1)
-    SET @MR_Namez = (SELECT RatingName
+    SET @MRA_Namez = (SELECT RatingName
     FROM Maturity_Rating
     WHERE MaturityRatingID = @PK)
-    SET @CMR_Abbvz = (SELECT RatingAbberviation
+    SET @MRA_Abbvz = (SELECT RatingAbbreviation
     FROM Maturity_Rating
-    WHERE RatingID = @PK)
+    WHERE MaturityRatingID = @PK)
 
     EXEC popGameDeveloperRole_Shourya
     @g_Name = @g_Namez,
