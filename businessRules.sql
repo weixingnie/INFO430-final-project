@@ -12,7 +12,7 @@ BEGIN
     FROM tblCustomer AS C, tblOrder AS O, OrderGame AS OG
     WHERE C.CustomerID = O.CustomerID AND O.OrderID = OG.OrderID
     GROUP BY C.CustomerID, OG.gameID
-    HAVING OG.Quantity > 5
+    HAVING SUM(OG.Quantity) > 5
     )
     BEGIN
         SET @Ret = 1
