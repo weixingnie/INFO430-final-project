@@ -149,22 +149,6 @@ Previous part are all create table
 Previous part are all create table
 */
 GO
----GET CustomerID
-CREATE PROCEDURE usp_GETCUSTID
-    @CustomerFname VARCHAR(50),
-    @CustomerLname VARCHAR(50),
-    @CustomerDOB DATE,
-    @CustomerAddress VARCHAR(50),
-    @CustomerID INT OUTPUT 
-    AS 
-    SET  @CustomerID = (SELECT customerID FROM tblCUSTOMER WHERE 
-                        @CustomerFname = tblCUSTOMER.CustomerFname AND
-                        @CustomerLname = tblCUSTOMER.CustomerLname AND
-                        @CustomerDOB = tblCUSTOMER.CustomerDOB AND 
-                        @CustomerAddress = tblCUSTOMER.CustomerAddress)
-
-GO
-
 CREATE PROCEDURE usp_GetTypeofReviewID
 @TypeName VARCHAR(50),
 @TypeofReviewID INT OUTPUT 
@@ -202,23 +186,32 @@ SET @LanguageID = (SELECT languageID FROM Language_Type L WHERE L.languageName =
 GO 
 
 
+---GET CustomerID
+CREATE PROCEDURE usp_GETCUSTID
+    @CustomerFname VARCHAR(50),
+    @CustomerLname VARCHAR(50),
+    @CustomerDOB DATE,
+    @CustomerAddress VARCHAR(50),
+    @CustomerID INT OUTPUT 
+    AS 
+    SET  @CustomerID = (SELECT customerID FROM tblCUSTOMER WHERE 
+                        @CustomerFname = tblCUSTOMER.CustomerFname AND
+                        @CustomerLname = tblCUSTOMER.CustomerLname AND
+                        @CustomerDOB = tblCUSTOMER.CustomerDOB AND 
+                        @CustomerAddress = tblCUSTOMER.CustomerAddress)
 
+GO
+---Create procedure for insertion
 ---Create procedure for insertion
 
-
-
----Create procedure for insertion
 CREATE PROCEDURE uspAddOrder
 @Cust_Fname VARCHAR(50),
 @Cust_Lname VARCHAR(50),
 @DOB DATE,
 @Cust_Address VARCHAR(50),
-@Total_Amount INT,
 @Order_Date DATE
 AS 
 DECLARE @C_ID INT
-
-
 EXECUTE usp_GETCUSTID 
 @CustomerFname = @Cust_Fname,
 @CustomerLname = @Cust_Lname,
@@ -233,12 +226,13 @@ IF @C_ID IS NULL
     END
 
 BEGIN TRAN T1
-    INSERT INTO tblOrder(CustomerID, OrderDate, TotalAmount)
-    VALUES (@C_ID, @Order_Date, @Total_Amount)
+    INSERT INTO tblOrder(CustomerID, OrderDate)
+    VALUES (@C_ID, @Order_Date)
     IF @@ERROR <> 0
         ROLLBACK TRAN T1
     ELSE COMMIT TRAN T1
 GO 
+
 
 ---Synthetic Transaction 
 CREATE PROCEDURE TRANS_Order
@@ -247,7 +241,6 @@ AS
 DECLARE @Fname VARCHAR(50)
 DECLARE @Lname VARCHAR(50)
 DECLARE @Birth DATE
-DECLARE @Quantity INT 
 DECLARE @Address VARCHAR(50)
 DECLARE @OrderDOB DATE 
 ---Number of keys in tblCustomer
@@ -255,31 +248,31 @@ DECLARE @PK INT
 DECLARE @CustCount INT = (SELECT COUNT(*) FROM tblCUSTOMER)
 
 WHILE @RUN > 0
-BEGIN
-SET @PK = (SELECT RAND() * @CustCount + 1)
-SET @Fname = (SELECT CustomerFname FROM tblCUSTOMER WHERE CustomerID = @PK)
-SET @Lname = (SELECT CustomerLname FROM tblCUSTOMER WHERE CustomerID = @PK)
-SET @Birth = (SELECT CustomerDOB FROM tblCUSTOMER WHERE CustomerID = @PK)
-SET @Quantity = (SELECT RAND() * 2 + 1)
-SET @Address = (SELECT CustomerAddress FROM tblCUSTOMER WHERE CustomerID = @PK)
-SET @OrderDOB = (SELECT GETDATE() - RAND())
+    BEGIN
+        SET @PK = (SELECT RAND() * @CustCount + 1)
+        SET @Fname = (SELECT CustomerFname FROM tblCUSTOMER WHERE CustomerID = @PK)
+        SET @Lname = (SELECT CustomerLname FROM tblCUSTOMER WHERE CustomerID = @PK)
+        SET @Birth = (SELECT CustomerDOB FROM tblCUSTOMER WHERE CustomerID = @PK)
+        SET @Address = (SELECT CustomerAddress FROM tblCUSTOMER WHERE CustomerID = @PK)
+        SET @OrderDOB = (SELECT GETDATE() - RAND())
 
-EXECUTE uspAddOrder
-@Cust_Fname = @Fname,
-@Cust_Lname = @Lname,
-@DOB = @Birth,
-@Cust_Address = @Address,
-@Total_Amount = @Quantity,
-@Order_Date = @OrderDOB
-SET @RUN = @RUN - 1
-END 
+
+        EXECUTE uspAddOrder
+        @Cust_Fname = @Fname,
+        @Cust_Lname = @Lname,
+        @DOB = @Birth,
+        @Cust_Address = @Address,
+        @Order_Date = @OrderDOB
+        SET @RUN = @RUN - 1
+    END 
 GO
 
 
 EXEC TRANS_Order
-@RUN = 5
+@RUN = 1000
 
 GO
+SELECT * FROM tblOrder
 
 /*
 Business rule
