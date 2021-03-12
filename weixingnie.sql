@@ -23,8 +23,8 @@ CREATE TABLE gameLanguage(
 
 CREATE TABLE Language_Type(
     languageID INT IDENTITY(1,1) PRIMARY KEY,
-    languageCode VARCHAR(50),
-    languageName VARCHAR(50)
+    languageCode VARCHAR(50) NOT NULL,
+    languageName VARCHAR(50) NOT NULL
 )
 
 CREATE TABLE Maturity_Rating(
@@ -120,25 +120,37 @@ INSERT INTO OrderGame(gameID, OrderID, Quantity) VALUES ((SELECT gameID FROM tbl
 
 GO
 
----tblGameLanguage
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-red'), (SELECT languageID from Language_Type L WHERE L.languageName = 'Chinese'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-red'), (SELECT languageID from Language_Type L WHERE L.languageName = 'English'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-red'), (SELECT languageID from Language_Type L WHERE L.languageName = 'Japanese'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-red'), (SELECT languageID from Language_Type L WHERE L.languageName = 'German'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-y'), (SELECT languageID from Language_Type L WHERE L.languageName = 'German'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-gold'), (SELECT languageID from Language_Type L WHERE L.languageName = 'Chinese'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-gold'), (SELECT languageID from Language_Type L WHERE L.languageName = 'English'))
-INSERT INTO tblGame_Language(gameID, languageID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-y'), (SELECT languageID from Language_Type L WHERE L.languageName = 'Japanese'))
-
 ---tblReview
 INSERT INTO tblReview(OrderGameID, ReviewContent, RatingID, TypeOfReviewID, reviewDate) VALUES ((SELECT OrderGameID FROM OrderGame WHERE gameID = 1 AND OrderID = 1), 'Great game', (SELECT RatingID FROM tblRATING WHERE RatingName = 'Hate'), (SELECT TypeOfReviewID FROM TypeOfReview T WHERE T.TypeOfReviewName = 'Professional'), DATEADD(Month, -2, GETDATE()))
 INSERT INTO tblReview(OrderGameID, ReviewContent, RatingID, TypeOfReviewID, reviewDate) VALUES ((SELECT OrderGameID FROM OrderGame WHERE gameID = 3 AND OrderID = 5), 'Fine for me', (SELECT RatingID FROM tblRATING WHERE RatingName = 'Love the game'), (SELECT TypeOfReviewID FROM TypeOfReview T WHERE T.TypeOfReviewName = 'Professional'), DATEADD(Month, -3, GETDATE()))
 INSERT INTO tblReview(OrderGameID, ReviewContent, RatingID, TypeOfReviewID, reviewDate) VALUES ((SELECT OrderGameID FROM OrderGame WHERE gameID = 2 AND OrderID = 2), 'Comments on the new Game', (SELECT RatingID FROM tblRATING WHERE RatingName = 'Some thoughts'), (SELECT TypeOfReviewID FROM TypeOfReview T WHERE T.TypeOfReviewName = 'Professional'), DATEADD(DAY, -10, GETDATE()))
 
----GameGenre
-INSERT INTO GameGenre(GameID, GenreID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-red'), (SELECT GenreID from Genre G WHERE G.GenreName = 'RPG'))
-INSERT INTO GameGenre(GameID, GenreID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-y'), (SELECT GenreID from Genre G WHERE G.GenreName = 'RPG'))
-INSERT INTO GameGenre(GameID, GenreID) VALUES ((SELECT gameID FROM tblGAME G WHERE gameName = 'pokemon-gold'), (SELECT GenreID from Genre G WHERE G.GenreName = 'RPG'))
+
+---Role
+INSERT INTO tblROLE(RoleName, RoleDescr) VALUES ('Producer', 'The producer of the Game')
+INSERT INTO tblROLE(RoleName, RoleDescr) VALUES ('Composer', 'The composer of all the music in Game')
+INSERT INTO tblROLE(RoleName, RoleDescr) VALUES ('Director', 'The No.1 in charge. The director of a videogame')
+INSERT INTO tblROLE(RoleName, RoleDescr) VALUES ('Tester', 'People need to do the test')
+
+---Developer
+INSERT INTO tblDEVELOPER(Fname, Lname, DOB, CountryID) VALUES ('Naoki', 'Yoshida', '1973-05-01', (SELECT CountryID FROM tblCOUNTRY WHERE CountryName = 'Japan'))
+INSERT INTO tblDEVELOPER(Fname, Lname, DOB, CountryID) VALUES ('Cory', 'Barlog', '1975-09-02', (SELECT CountryID FROM tblCOUNTRY WHERE CountryName = 'United States'))
+INSERT INTO tblDEVELOPER(Fname, Lname, DOB, CountryID) VALUES ('Hideo', 'Kojima', '1965-08-24', (SELECT CountryID FROM tblCOUNTRY WHERE CountryName = 'Japan'))
+INSERT INTO tblDEVELOPER(Fname, Lname, DOB, CountryID) VALUES ('Shigeru', 'Miyamoto', '1952-11-16', (SELECT CountryID FROM tblCOUNTRY WHERE CountryName = 'Japan'))
+
+---tbldevelopment_status
+INSERT INTO tblDevelopment_Status(StatusName, StatusDesc) VALUES ('In-progress', 'Game are currently still in development')
+INSERT INTO tblDevelopment_Status(StatusName, StatusDesc) VALUES ('Released', 'Game are currently on sale on Market')
+INSERT INTO tblDevelopment_Status(StatusName, StatusDesc) VALUES ('Cancel', 'Game are not longer in development')
+INSERT INTO tblDevelopment_Status(StatusName, StatusDesc) VALUES ('Announce', 'Game is just recently announced')
+
+---tblSTATUS 
+INSERT INTO tblSTATUS(StatusName, StatusDescr) VALUES ('Ordered', 'placed an Order')
+INSERT INTO tblSTATUS(StatusName, StatusDescr) VALUES ('Delivered', 'The package should be arrived')
+INSERT INTO tblSTATUS(StatusName, StatusDescr) VALUES ('Cancel', 'Never complete')
+---
+
+SELECT * FROM tblCOUNTRY
 /*
 Previous part are all create table
 Previous part are all create table
@@ -164,13 +176,6 @@ AS
 SET @RatingID = (SELECT RatingID FROM tblRATING WHERE RatingName = @RatingName AND RatingNum = @RatingNum)
 GO
 
-CREATE PROCEDURE uspGetGameID
-@GameName VARCHAR(50),
-@GameID INT OUTPUT 
-AS 
-SET @GameID = (SELECT gameID FROM tblGAME WHERE gameName = @GameName)
-GO 
-
 CREATE PROCEDURE uspGetGenreID
 @GerneName VARCHAR(50),
 @GerneID INT OUTPUT 
@@ -184,6 +189,21 @@ CREATE PROCEDURE uspLanguageID
 AS 
 SET @LanguageID = (SELECT languageID FROM Language_Type L WHERE L.languageName = @LanguageName)
 GO 
+
+CREATE PROCEDURE uspGetStatusID 
+@StatusName VARCHAR(50),
+@StatusID INT OUTPUT 
+AS 
+SET @StatusID = (SELECT StatusID FROM tblSTATUS S WHERE S.StatusName = @StatusName)
+GO
+
+CREATE PROCEDURE uspGetOrderID 
+@Order_Date DATE,
+@CustID INT,
+@OrderID INT OUTPUT 
+AS 
+SET @OrderID = (SELECT OrderID FROM tblOrder O WHERE O.OrderDate = @Order_Date AND O.CustomerID = @CustID)
+GO
 
 
 ---GET CustomerID
@@ -272,7 +292,57 @@ EXEC TRANS_Order
 @RUN = 1000
 
 GO
-SELECT * FROM tblOrder
+
+/*
+ADD multiple gameOrder
+*/
+CREATE PROCEDURE uspGetGameID
+@G_Name VARCHAR(50),
+@GameID INT OUTPUT 
+AS 
+SET @GameID = (SELECT G.gameID FROM tblGAME G WHERE G.gameName = @G_Name)
+GO 
+
+CREATE PROCEDURE uspGetOrderID
+@customerID INT,
+@OrderDate DATE,
+@OrderID INT OUTPUT 
+AS 
+SET @OrderID = (SELECT OrderID FROM tblOrder O WHERE O.CustomerID = @customerID AND O.OrderDate = @OrderDate)
+GO
+
+---Synthetic Transaction 
+CREATE PROCEDURE TRANS_GameOrder
+@RUN INT 
+AS 
+DECLARE @VideoGameName VARCHAR(50)
+DECLARE @CustomerID INT
+DECLARE @TheDateOrder DATE 
+---Number of keys in tblCustomer
+DECLARE @PK INT
+DECLARE @PK2 INT
+DECLARE @OrderCount INT = (SELECT COUNT(*) FROM tblOrder)
+DECLARE @GameCount INT = (SELECT COUNT(*) FROM tblGAME)
+WHILE @RUN > 0
+    BEGIN
+        SET @PK = (SELECT RAND() * @GameCount + 1)
+        SET @PK2 = (SELECT RAND() * @OrderCount + 1)
+        SET @VideoGameName = (SELECT G.gameName FROM tblGAME G WHERE G.gameID = @PK)
+        SET @CustomerID = (SELECT O.CustomerID FROM tblOrder O WHERE O.CustomerID = @PK2)
+        SET @TheDateOrder = (SELECT O.OrderDate FROM tblOrder O WHERE O.CustomerID = @CustomerID)
+
+        EXECUTE uspAddGameOrder
+        @GameName = @VideoGameName,
+        @customID = @CustomerID,
+        @ODATE = @TheDateOrder
+        SET @RUN = @RUN - 1
+    END 
+GO
+
+
+EXEC TRANS_GameOrder
+@RUN = 1
+GO
 
 /*
 Business rule
@@ -440,7 +510,161 @@ WITH CTE_popular_console (ConsoleID, ConsoleName, numbers) AS
         JOIN tblCountry CT ON CT.CountryID = P.CountryID
 GO
 
+/*
+GamedeveloperRole
+Review
+tblOrderStatus
+*/
 
+CREATE PROCEDURE insertGameGenre
+@GameName VARCHAR(50),
+@Gerne_Name VARCHAR(50)
+AS 
+DECLARE @Game_ID INT, @Gerne_ID INT
 
+EXEC uspGetGameID
+@G_Name = @GameName,
+@GameID = @Game_ID OUTPUT 
+IF @Game_ID IS NULL 
+BEGIN 
+    RAISERROR('Game ID should not be null', 11, 1)
+    RETURN 
+END 
 
-SELECT * FROM Most_popular_Console
+EXECUTE uspGetGenreID
+@GerneName = @Gerne_Name,
+@GerneID = @Gerne_ID OUTPUT 
+IF @Gerne_ID IS NULL 
+BEGIN 
+    RAISERROR('GerneID should not be null', 11, 1)
+    RETURN 
+END 
+
+BEGIN TRAN G1
+    INSERT INTO GameGenre(GameID, GenreID)
+    VALUES (@Game_ID, @Gerne_ID)
+    IF @@ERROR<> 0
+    BEGIN 
+        PRINT('Ran into error when inserting GerneGame')
+        ROLLBACK TRAN G1
+    END 
+    ELSE 
+        COMMIT TRAN G1
+GO
+
+/*populate all the possible GameGerne table */
+EXECUTE insertGameGenre
+@GameName = 'pokemon-red',
+@Gerne_Name = 'RPG'
+
+EXECUTE insertGameGenre
+@GameName = 'pokemon-gold',
+@Gerne_Name = 'RPG'
+
+EXECUTE insertGameGenre
+@GameName = 'pokemon-y',
+@Gerne_Name = 'RPG'
+
+EXECUTE insertGameGenre
+@GameName = 'pokemon-shuffle',
+@Gerne_Name = 'RPG'
+GO 
+---
+---
+---
+CREATE PROCEDURE insertGameLanguage
+@GameName VARCHAR(50),
+@Language_name VARCHAR(50)
+AS 
+DECLARE @Game_ID INT, @Language_ID INT
+
+EXEC uspGetGameID
+@G_Name = @GameName,
+@GameID = @Game_ID OUTPUT 
+IF @Game_ID IS NULL 
+BEGIN 
+    RAISERROR('Game ID should not be null', 11, 1)
+    RETURN 
+END 
+
+EXECUTE uspLanguageID
+@LanguageName = @Language_name,
+@LanguageID = @Language_ID OUTPUT 
+IF @Language_ID IS NULL 
+BEGIN 
+    RAISERROR('Language_ID should not be null', 11, 1)
+    RETURN 
+END 
+
+BEGIN TRAN G1
+    INSERT INTO gameLanguage(GameID, languageID)
+    VALUES (@Game_ID, @Language_ID)
+    IF @@ERROR<> 0
+    BEGIN 
+        PRINT('Ran into error when inserting gamelanguage')
+        ROLLBACK TRAN G1
+    END 
+    ELSE 
+        COMMIT TRAN G1
+GO
+
+EXECUTE insertGameLanguage
+@GameName = 'pokemon-red',
+@Language_name = 'Chinese'
+
+EXECUTE insertGameLanguage
+@GameName = 'pokemon-gold',
+@Language_name = 'Japanese'
+
+EXECUTE insertGameLanguage
+@GameName = 'pokemon-y',
+@Language_name = 'English'
+
+EXECUTE insertGameLanguage
+@GameName = 'pokemon-shuffle',
+@Language_name = 'German'
+GO 
+
+---OrderStatus
+---OrderStatus
+---OrderStatus
+CREATE PROCEDURE insertOrderStatus
+@Fname VARCHAR(50),
+@Lname VARCHAR(50),
+@DOB DATE,
+@OD DATE,
+@ADDRESS VARCHAR(50)
+
+AS
+
+DECLARE @C_ID INT, @ INT
+
+EXEC uspGetGameID
+@G_Name = @GameName,
+@GameID = @Game_ID OUTPUT 
+IF @Game_ID IS NULL 
+BEGIN 
+    RAISERROR('Game ID should not be null', 11, 1)
+    RETURN 
+END 
+
+EXECUTE uspLanguageID
+@LanguageName = @Language_name,
+@LanguageID = @Language_ID OUTPUT 
+IF @Language_ID IS NULL 
+BEGIN 
+    RAISERROR('Language_ID should not be null', 11, 1)
+    RETURN 
+END 
+
+BEGIN TRAN G1
+    INSERT INTO gameLanguage(GameID, languageID)
+    VALUES (@Game_ID, @Language_ID)
+    IF @@ERROR<> 0
+    BEGIN 
+        PRINT('Ran into error when inserting gamelanguage')
+        ROLLBACK TRAN G1
+    END 
+    ELSE 
+        COMMIT TRAN G1
+GO
